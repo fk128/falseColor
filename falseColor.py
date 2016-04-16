@@ -5,13 +5,9 @@ import os
 from os.path import basename
 
 
-def processImage(imgPath, addLegend):
+def processImage(grey, addLegend):
 
-	im = Image.open( imgPath )
-
-	grey = im.convert("L")
-
-	out = im
+	out = Image.new('RGB', grey.size)
 
 	# IRE range and band colors
 	IRErange = [-7, 2, 8, 15, 24, 43, 47, 54, 58, 77, 84, 93, 100, 109]
@@ -59,11 +55,27 @@ def main():
 	parser.add_argument("--save", help="save output image. Same name, but with _falsecolor suffix",action="store_true")
 	parser.add_argument("--legend", help="add legend to output.",action="store_true")
 	parser.add_argument("--nodisplay", help="image is not displayed. If active, then image is saved.",action="store_true")
+	parser.add_argument("--rgb", help="process RGB channels separately",action="store_true")
 
 	args = parser.parse_args()
 
 	for imgPath in args.images:
-		outImg = processImage(imgPath, args.legend)
+		im = Image.open( imgPath )
+		# split channels and concatenate them into single image
+		if args.rgb and im.mode != 'L' :
+			im = im.split()
+			r = im[0]
+			g = im[1]
+			b = im[2]
+			grey = Image.new('L', [3*r.size[0],r.size[1]])
+			grey.paste(r,(0, 0))
+			grey.paste(g,(r.size[0], 0))
+			grey.paste(b,(2*r.size[0], 0))
+		else:
+			grey = im.convert('L')
+
+		outImg = processImage(grey, args.legend)
+
 		if not args.nodisplay:
 			outImg.show()
 		if args.save or args.nodisplay:

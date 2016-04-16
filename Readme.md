@@ -10,6 +10,8 @@ A simply command line python program that generates a false color image of an in
 python falseColor.py lena.bmp --save --nodisplay --legend
 ```
 
+add `--rgb` to apply on each channel separately.
+
 | input | output |
 |---|---|
 | ![](images/lena.bmp)  | ![](images/lena_falsecolor.jpg)   |
